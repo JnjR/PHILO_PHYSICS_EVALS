@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Évaluation et tabulation du symposium — La physique avant Einstein</title>
+<style>
+  /* ===== Variables de thème ===== */
+  :root{
+    --bg: #fbf7f8;
+    --card: rgba(255,255,255,0.90);
+    --text: #1d1d1f;
+    --muted: #707078;
+    --line: rgba(66, 80, 120, 0.10);
+    --soft: #f8eef1;
+    --accent: #334155;
+    --blue: #dbeafe;
+    --blue-strong: #93c5fd;
+    --red: #fee2e2;
+    --red-strong: #fca5a5;
+    --shadow: 0 22px 60px rgba(80, 90, 130, 0.08);
+    --radius: 28px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #fde7ee 0%, rgba(253,231,238,0) 55%),
+      radial-gradient(1100px 600px at 90% 0%, #e3eefc 0%, rgba(227,238,252,0) 55%),
+      var(--bg);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 22px 80px;
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    background: var(--card);
+    backdrop-filter: blur(14px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    padding: 44px 42px;
+    margin-bottom: 26px;
+  }
+  .eyebrow{
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .hero h1{
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    margin: 0 0 14px;
+    line-height: 1.05;
+  }
+  .hero p.subtitle{
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 760px;
+    margin: 0 0 22px;
+  }
+  .pills{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pill{
+    background: var(--soft);
+    border: 1px solid var(--line);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ===== Sections / cartes ===== */
+  .card{
+    background: var(--card);
+    backdrop-filter: blur(14px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    padding: 30px 32px;
+    margin-bottom: 26px;
+  }
+  .card h2{
+    font-size: 21px;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .card .lede{
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 22px;
+  }
+
+  /* ===== Cartes métriques ===== */
+  .metrics{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .metric{
+    background: linear-gradient(160deg, rgba(255,255,255,0.7), rgba(248,238,241,0.5));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 20px 22px;
+  }
+  .metric .val{
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .metric .lab{
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ===== Formulaire ===== */
+  .form-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .field{ display: flex; flex-direction: column; gap: 7px; }
+  .field.full{ grid-column: 1 / -1; }
+  label{
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  label .crit-num{
+    display: inline-block;
+    background: var(--blue);
+    color: #1e3a5f;
+    border-radius: 8px;
+    padding: 1px 9px;
+    font-size: 12px;
+    margin-right: 8px;
+  }
+  select, textarea, input[type="file"]{
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    background: rgba(255,255,255,0.85);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  select:focus, textarea:focus{
+    border-color: var(--blue-strong);
+    box-shadow: 0 0 0 4px rgba(147,197,253,0.25);
+  }
+  textarea{ resize: vertical; min-height: 80px; }
+
+  .btn{
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 24px;
+    cursor: pointer;
+    transition: transform .08s, box-shadow .15s, background .15s;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(51,65,85,0.22);
+  }
+  .btn-primary:hover{ background: #283340; }
+  .btn-secondary{
+    background: var(--blue);
+    color: #1e3a5f;
+    border: 1px solid var(--blue-strong);
+  }
+  .btn-secondary:hover{ background: #cfe2fb; }
+  .btn-danger{
+    background: var(--red);
+    color: #7f1d1d;
+    border: 1px solid var(--red-strong);
+  }
+  .btn-danger:hover{ background: #fdd3d3; }
+
+  .form-actions{
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* ===== Messages ===== */
+  .msg{
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 16px;
+    display: none;
+  }
+  .msg.show{ display: block; }
+  .msg.warn{ background: var(--red); color: #7f1d1d; border: 1px solid var(--red-strong); }
+  .msg.ok{ background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+  .msg.info{ background: var(--blue); color: #1e3a5f; border: 1px solid var(--blue-strong); }
+
+  .inline-status{
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 10px;
+    min-height: 18px;
+  }
+
+  /* ===== Tables ===== */
+  .table-scroll{ overflow-x: auto; }
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 640px;
+  }
+  thead th{
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    font-weight: 700;
+    padding: 12px 12px;
+    border-bottom: 2px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody td{
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  tbody tr:hover{ background: rgba(248,238,241,0.5); }
+  td.num, th.num{ text-align: center; font-variant-numeric: tabular-nums; }
+  .presenter-name{ font-weight: 600; }
+  .final-mark{
+    font-weight: 800;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .badge{
+    display: inline-block;
+    background: var(--blue);
+    color: #1e3a5f;
+    border-radius: 8px;
+    padding: 2px 9px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge.zero{ background: #f1f1f4; color: var(--muted); }
+  .dash{ color: var(--muted); }
+  .chips{ display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip{
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  /* ===== Export / Import ===== */
+  .tool-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .file-label{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  footer{
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 20px 0;
+  }
+
+  @media (max-width: 720px){
+    .form-grid{ grid-template-columns: 1fr; }
+    .hero{ padding: 32px 24px; }
+    .card{ padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="eyebrow">La physique avant Einstein · Symposium étudiant</div>
+    <h1>Évaluation et tabulation du symposium</h1>
+    <p class="subtitle">Cet outil permet de recueillir les évaluations du symposium, de suivre la participation et de calculer une note pondérée : 50 % évaluation du professeur, 50 % moyenne des évaluations étudiantes.</p>
+    <div class="pills">
+      <span class="pill">22 présentations</span>
+      <span class="pill">Prof. Rousseau évaluateur</span>
+      <span class="pill">Évaluation par critères</span>
+      <span class="pill">Calcul automatique</span>
+      <span class="pill">Export CSV / JSON</span>
+    </div>
+  </header>
+
+  <!-- ===== MÉTRIQUES ===== -->
+  <section class="card">
+    <h2>Tableau de bord</h2>
+    <p class="lede">Aperçu en direct de la participation et des résultats.</p>
+    <div class="metrics" id="metrics"></div>
+  </section>
+
+  <!-- ===== FORMULAIRE ===== -->
+  <section class="card">
+    <h2>Formulaire d'évaluation</h2>
+    <p class="lede">Chaque évaluateur peut évaluer chaque présentateur une seule fois. L'auto-évaluation est bloquée. Jusqu'à 23 évaluateurs sont possibles (22 étudiants + Prof. Rousseau), mais comme un présentateur ne peut pas s'auto-évaluer, chaque présentateur reçoit au maximum 22 évaluations.</p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="presenter">Présentateur évalué</label>
+        <select id="presenter" required>
+          <option value="">— Choisir un présentateur —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="evaluator">Évaluateur</label>
+        <select id="evaluator" required>
+          <option value="">— Choisir un évaluateur —</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="thesis"><span class="crit-num">1</span>La présentation défend une thèse claire pour ou contre le réalisme scientifique.</label>
+        <select id="thesis" required>
+          <option value="">— Choisir —</option>
+          <option value="0">0 — absent</option>
+          <option value="1">1 — faible</option>
+          <option value="2">2 — acceptable</option>
+          <option value="3">3 — très bien</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="appearances"><span class="crit-num">2</span>La présentation utilise correctement la notion de « sauver les apparences ».</label>
+        <select id="appearances" required>
+          <option value="">— Choisir —</option>
+          <option value="0">0 — absent</option>
+          <option value="1">1 — faible</option>
+          <option value="2">2 — acceptable</option>
+          <option value="3">3 — très bien</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="history"><span class="crit-num">3</span>La présentation s'appuie clairement sur un épisode de théories concurrentes dans l'histoire de la physique : Ptolémée/Copernic ou théorie corpusculaire/théorie ondulatoire de la lumière.</label>
+        <select id="history" required>
+          <option value="">— Choisir —</option>
+          <option value="0">0 — absent</option>
+          <option value="1">1 — faible</option>
+          <option value="2">2 — acceptable</option>
+          <option value="3">3 — très bien</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="argument"><span class="crit-num">4</span>La présentation développe un véritable argument philosophique, plutôt qu'un simple résumé.</label>
+        <select id="argument" required>
+          <option value="">— Choisir —</option>
+          <option value="0">0 — absent</option>
+          <option value="1">1 — faible</option>
+          <option value="2">2 — acceptable</option>
+          <option value="3">3 — très bien</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="understanding">Une chose que cette présentation m'a aidé à mieux comprendre</label>
+        <textarea id="understanding" required></textarea>
+      </div>
+
+      <div class="field full">
+        <label for="suggestion">Question ou suggestion constructive pour améliorer l'argument</label>
+        <textarea id="suggestion" required></textarea>
+      </div>
+    </div>
+
+    <div class="inline-status" id="inlineStatus"></div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="submitBtn">Soumettre l'évaluation</button>
+      <button class="btn btn-secondary" id="resetBtn">Réinitialiser le formulaire</button>
+    </div>
+
+    <div class="msg" id="formMsg"></div>
+  </section>
+
+  <!-- ===== TABLE TABULATION ===== -->
+  <section class="card">
+    <h2>Tabulation en direct</h2>
+    <p class="lede">Note pondérée = 50 % professeur + 50 % moyenne de classe. Note finale convertie sur 20.</p>
+    <div class="table-scroll">
+      <table id="tabTable">
+        <thead>
+          <tr>
+            <th>Présentateur</th>
+            <th class="num">Évaluations étudiantes reçues</th>
+            <th class="num">Évaluation Prof.</th>
+            <th class="num">Moyenne classe /12</th>
+            <th class="num">Note Prof. /12</th>
+            <th class="num">Note pondérée /12</th>
+            <th class="num">Note finale /20</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== TABLE PROGRESSION ÉVALUATEURS ===== -->
+  <section class="card">
+    <h2>Progression des évaluateurs</h2>
+    <p class="lede">Suivi du nombre d'évaluations soumises par chaque évaluateur.</p>
+    <div class="table-scroll">
+      <table id="progTable">
+        <thead>
+          <tr>
+            <th>Évaluateur</th>
+            <th class="num">Nombre d'évaluations soumises</th>
+            <th>Présentateurs déjà évalués</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== EXPORT / IMPORT ===== -->
+  <section class="card">
+    <h2>Export / Import</h2>
+    <p class="lede">Sauvegarder, restaurer ou réinitialiser les données. Les données sont conservées localement dans le navigateur.</p>
+    <div class="tool-row">
+      <button class="btn btn-secondary" id="expRaw">Exporter CSV (évaluations)</button>
+      <button class="btn btn-secondary" id="expSummary">Exporter CSV (résultats)</button>
+      <button class="btn btn-secondary" id="expJson">Exporter JSON (sauvegarde)</button>
+      <label class="btn btn-secondary file-label">
+        Importer JSON
+        <input type="file" id="impJson" accept="application/json,.json" style="display:none">
+      </label>
+      <button class="btn btn-danger" id="clearBtn">Effacer toutes les données</button>
+    </div>
+    <div class="msg" id="toolMsg"></div>
+  </section>
+
+  <footer>
+    La physique avant Einstein : Introduction à la philosophie de la physique · Prof. Jean-Jacques Rousseau · Symposium étudiant
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================
+   DONNÉES DE BASE
+   ========================================================= */
+
+// Présentateurs (22), ordre alphabétique par nom de famille
+const PRESENTERS = [
+  "Rood Kerby BRUNO",
+  "Shello BRISMA",
+  "Jean Fadens CHERON",
+  "Romélus CHÉRY",
+  "Mistina DESTIN",
+  "Christie Michelle DESTINÉ",
+  "Wood Kervens FIGARO",
+  "Carlos Wadson FRANÇOIS",
+  "Richardson GEORGES",
+  "Pierre Wilson GERMEIL",
+  "Rubenson JEAN",
+  "Stacy L. JEAN",
+  "Guerbens JURÉ",
+  "Dagena JUSTE",
+  "Levenson LUCIEN",
+  "Marie Claudena MEJUSTIN",
+  "Eddy Bel-amour METTELUS",
+  "Sucssian MILDARIN",
+  "Roodson NOËL",
+  "Wenderlysse OLIBRUN",
+  "Dory Edwuide PAUL",
+  "Kervens THERENCIEL"
+];
+
+const PROF = "Prof. Rousseau";
+
+// Évaluateurs = 22 étudiants + Prof. Rousseau
+const EVALUATORS = [...PRESENTERS, PROF];
+
+// Clé localStorage
+const STORAGE_KEY = "rousseau_symposium_peer_evaluations_v1";
+
+// Définition des quatre critères (clés + libellés courts pour CSV)
+const CRITERIA = [
+  { key: "thesis",      short: "Thèse" },
+  { key: "appearances", short: "Sauver les apparences" },
+  { key: "history",     short: "Épisode historique" },
+  { key: "argument",    short: "Argument" }
+];
+
+/* =========================================================
+   STOCKAGE
+   ========================================================= */
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(e){
+    console.error("Erreur de lecture du stockage :", e);
+    return [];
+  }
+}
+
+function saveData(arr){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+
+let evaluations = loadData();
+
+/* =========================================================
+   INITIALISATION DU FORMULAIRE
+   ========================================================= */
+
+function fillSelect(select, items){
+  items.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+}
+
+const presenterSel  = document.getElementById("presenter");
+const evaluatorSel  = document.getElementById("evaluator");
+
+fillSelect(presenterSel, PRESENTERS);
+fillSelect(evaluatorSel, EVALUATORS);
+
+/* =========================================================
+   AIDES UI
+   ========================================================= */
+
+function showMsg(el, text, type){
+  el.textContent = text;
+  el.className = "msg show " + type;
+}
+function hideMsg(el){
+  el.className = "msg";
+}
+
+// Statut en ligne : indique l'état présentateur/évaluateur sélectionné
+function updateInlineStatus(){
+  const p = presenterSel.value;
+  const ev = evaluatorSel.value;
+  const status = document.getElementById("inlineStatus");
+
+  if(!p || !ev){ status.textContent = ""; return; }
+
+  if(p === ev){
+    status.textContent = "⚠ Un étudiant ne peut pas s'évaluer lui-même.";
+    return;
+  }
+  const dup = evaluations.some(e => e.presenter === p && e.evaluator === ev);
+  if(dup){
+    status.textContent = "⚠ Cet évaluateur a déjà évalué ce présentateur.";
+    return;
+  }
+  // Nombre d'évaluations déjà reçues par ce présentateur
+  const received = evaluations.filter(e => e.presenter === p).length;
+  status.textContent = "✓ Combinaison valide · " + received + " évaluation(s) déjà reçue(s) par ce présentateur (max 22).";
+}
+
+presenterSel.addEventListener("change", updateInlineStatus);
+evaluatorSel.addEventListener("change", updateInlineStatus);
+
+/* =========================================================
+   SOUMISSION
+   ========================================================= */
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  const msg = document.getElementById("formMsg");
+  hideMsg(msg);
+
+  const presenter  = presenterSel.value;
+  const evaluator  = evaluatorSel.value;
+  const thesis     = document.getElementById("thesis").value;
+  const appearances= document.getElementById("appearances").value;
+  const history    = document.getElementById("history").value;
+  const argument   = document.getElementById("argument").value;
+  const understanding = document.getElementById("understanding").value.trim();
+  const suggestion    = document.getElementById("suggestion").value.trim();
+
+  // Tous les champs requis
+  if(!presenter || !evaluator || thesis==="" || appearances==="" ||
+     history==="" || argument==="" || !understanding || !suggestion){
+    showMsg(msg, "Tous les champs sont requis. Veuillez compléter le formulaire.", "warn");
+    return;
+  }
+
+  // Pas d'auto-évaluation
+  if(presenter === evaluator){
+    showMsg(msg, "Un étudiant ne peut pas s'évaluer lui-même. Veuillez choisir un autre présentateur ou évaluateur.", "warn");
+    return;
+  }
+
+  // Pas de doublon présentateur/évaluateur
+  const dup = evaluations.some(e => e.presenter === presenter && e.evaluator === evaluator);
+  if(dup){
+    showMsg(msg, "« " + evaluator + " » a déjà évalué « " + presenter + " ». Les doublons ne sont pas permis.", "warn");
+    return;
+  }
+
+  // Construction de l'objet évaluation
+  const record = {
+    id: "ev_" + Date.now() + "_" + Math.random().toString(36).slice(2,8),
+    timestamp: new Date().toISOString(),
+    presenter: presenter,
+    evaluator: evaluator,
+    scores: {
+      thesis: Number(thesis),
+      appearances: Number(appearances),
+      history: Number(history),
+      argument: Number(argument)
+    },
+    understanding: understanding,
+    suggestion: suggestion
+  };
+
+  evaluations.push(record);
+  saveData(evaluations);
+
+  showMsg(msg, "✓ Évaluation enregistrée : « " + evaluator + " » → « " + presenter + " ».", "ok");
+  resetForm(false);
+  refreshAll();
+});
+
+function resetForm(clearSelectors){
+  document.getElementById("thesis").value = "";
+  document.getElementById("appearances").value = "";
+  document.getElementById("history").value = "";
+  document.getElementById("argument").value = "";
+  document.getElementById("understanding").value = "";
+  document.getElementById("suggestion").value = "";
+  if(clearSelectors){
+    presenterSel.value = "";
+    evaluatorSel.value = "";
+  }
+  updateInlineStatus();
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  resetForm(true);
+  hideMsg(document.getElementById("formMsg"));
+});
+
+/* =========================================================
+   CALCULS / TABULATION
+   ========================================================= */
+
+// Moyenne d'un tableau de nombres
+function avg(nums){
+  if(nums.length === 0) return null;
+  return nums.reduce((a,b)=>a+b, 0) / nums.length;
+}
+
+// Calcule les résultats complets pour un présentateur
+function computePresenter(presenter){
+  const recs = evaluations.filter(e => e.presenter === presenter);
+  const studentRecs = recs.filter(e => e.evaluator !== PROF);
+  const profRecs    = recs.filter(e => e.evaluator === PROF);
+  const profRec     = profRecs[0] || null; // normalement 0 ou 1
+
+  const perQuestion = CRITERIA.map(c => {
+    // Moyenne de classe (étudiants seulement)
+    const classScores = studentRecs.map(e => e.scores[c.key]);
+    const classAvg = avg(classScores); // null si aucun
+
+    // Score professeur
+    const profScore = profRec ? profRec.scores[c.key] : null;
+
+    // Note pondérée par question
+    let finalQ = null;
+    if(classAvg !== null && profScore !== null){
+      finalQ = 0.5 * profScore + 0.5 * classAvg;
+    } else if(profScore !== null){
+      finalQ = profScore;
+    } else if(classAvg !== null){
+      finalQ = classAvg;
+    }
+
+    return { classAvg, profScore, finalQ };
+  });
+
+  // Totaux sur 12 (somme des 4 questions, chacune /3)
+  const classAvgsExist = perQuestion.every(q => q.classAvg !== null);
+  const classTotal12 = classAvgsExist
+    ? perQuestion.reduce((a,q)=>a+q.classAvg, 0)
+    : (studentRecs.length > 0 ? perQuestion.reduce((a,q)=>a+(q.classAvg||0),0) : null);
+
+  const profTotal12 = profRec
+    ? perQuestion.reduce((a,q)=>a+(q.profScore||0), 0)
+    : null;
+
+  // Note pondérée totale /12
+  const finalQsExist = perQuestion.every(q => q.finalQ !== null);
+  const weightedTotal12 = finalQsExist
+    ? perQuestion.reduce((a,q)=>a+q.finalQ, 0)
+    : null;
+
+  // Note finale /20
+  let finalOutOf20 = null;
+  if(finalQsExist){
+    const avgFinalQ = weightedTotal12 / 4; // moyenne des 4 notes pondérées (/3)
+    finalOutOf20 = (avgFinalQ / 3) * 20;
+  }
+
+  return {
+    presenter,
+    studentCount: studentRecs.length,
+    profCount: profRecs.length,
+    totalCount: recs.length,
+    perQuestion,
+    classTotal12,
+    profTotal12,
+    weightedTotal12,
+    finalOutOf20
+  };
+}
+
+/* =========================================================
+   RENDU DES MÉTRIQUES
+   ========================================================= */
+
+function renderMetrics(){
+  const container = document.getElementById("metrics");
+
+  const totalEvals = evaluations.length;
+  const numPresenters = PRESENTERS.length;
+
+  // Nombre d'évaluateurs étudiants distincts ayant soumis
+  const studentEvaluators = new Set(
+    evaluations.filter(e => e.evaluator !== PROF).map(e => e.evaluator)
+  ).size;
+
+  const profEvals = evaluations.filter(e => e.evaluator === PROF).length;
+
+  // Moyenne des notes finales disponibles
+  const finals = PRESENTERS
+    .map(p => computePresenter(p).finalOutOf20)
+    .filter(v => v !== null);
+  const avgFinal = finals.length > 0
+    ? (finals.reduce((a,b)=>a+b,0)/finals.length).toFixed(2)
+    : "—";
+
+  const cards = [
+    { val: totalEvals,       lab: "Évaluations soumises" },
+    { val: numPresenters,    lab: "Présentateurs" },
+    { val: studentEvaluators,lab: "Évaluateurs étudiants actifs" },
+    { val: profEvals,        lab: "Évaluations du professeur" },
+    { val: avgFinal,         lab: "Note finale moyenne /20" }
+  ];
+
+  container.innerHTML = cards.map(c =>
+    `<div class="metric"><div class="val">${c.val}</div><div class="lab">${c.lab}</div></div>`
+  ).join("");
+}
+
+/* =========================================================
+   RENDU TABLE TABULATION
+   ========================================================= */
+
+function fmt(v){
+  return (v === null || v === undefined) ? '<span class="dash">—</span>' : v.toFixed(2);
+}
+
+function renderTabTable(){
+  const tbody = document.querySelector("#tabTable tbody");
+  tbody.innerHTML = PRESENTERS.map(p => {
+    const r = computePresenter(p);
+    const profCell = r.profCount > 0
+      ? '<span class="badge">Oui</span>'
+      : '<span class="badge zero">Non</span>';
+
+    return `<tr>
+      <td class="presenter-name">${p}</td>
+      <td class="num">${r.studentCount}</td>
+      <td class="num">${profCell}</td>
+      <td class="num">${fmt(r.classTotal12)}</td>
+      <td class="num">${fmt(r.profTotal12)}</td>
+      <td class="num">${fmt(r.weightedTotal12)}</td>
+      <td class="num final-mark">${r.finalOutOf20 === null ? '<span class="dash">—</span>' : r.finalOutOf20.toFixed(2)}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* =========================================================
+   RENDU TABLE PROGRESSION
+   ========================================================= */
+
+function renderProgTable(){
+  const tbody = document.querySelector("#progTable tbody");
+  tbody.innerHTML = EVALUATORS.map(ev => {
+    const recs = evaluations.filter(e => e.evaluator === ev);
+    const presented = recs.map(e => e.presenter);
+    const chips = presented.length > 0
+      ? `<div class="chips">${presented.map(p=>`<span class="chip">${p}</span>`).join("")}</div>`
+      : '<span class="dash">—</span>';
+    return `<tr>
+      <td class="presenter-name">${ev}</td>
+      <td class="num">${recs.length}</td>
+      <td>${chips}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* =========================================================
+   RAFRAÎCHISSEMENT GLOBAL
+   ========================================================= */
+
+function refreshAll(){
+  renderMetrics();
+  renderTabTable();
+  renderProgTable();
+  updateInlineStatus();
+}
+
+/* =========================================================
+   EXPORT CSV (utilitaires)
+   ========================================================= */
+
+// Échappe un champ CSV
+function csvCell(v){
+  const s = String(v ?? "");
+  if(/[",\n;]/.test(s)){
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function downloadFile(filename, content, mime){
+  // BOM UTF-8 pour que les accents s'affichent correctement dans Excel
+  const blob = new Blob(["\uFEFF" + content], { type: mime + ";charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Export CSV brut
+document.getElementById("expRaw").addEventListener("click", () => {
+  const tmsg = document.getElementById("toolMsg");
+  if(evaluations.length === 0){
+    showMsg(tmsg, "Aucune évaluation à exporter.", "info");
+    return;
+  }
+  const header = ["Timestamp","Présentateur","Évaluateur","Thèse","Sauver les apparences","Épisode historique","Argument","Compréhension","Suggestion"];
+  const rows = evaluations.map(e => [
+    e.timestamp, e.presenter, e.evaluator,
+    e.scores.thesis, e.scores.appearances, e.scores.history, e.scores.argument,
+    e.understanding, e.suggestion
+  ].map(csvCell).join(","));
+  const csv = header.map(csvCell).join(",") + "\n" + rows.join("\n");
+  downloadFile("evaluations_symposium.csv", csv, "text/csv");
+  showMsg(tmsg, "✓ CSV des évaluations exporté.", "ok");
+});
+
+// Export CSV résumé
+document.getElementById("expSummary").addEventListener("click", () => {
+  const tmsg = document.getElementById("toolMsg");
+  const header = ["Présentateur","Évaluations étudiantes","Évaluation Prof","Moyenne classe sur 12","Note Prof sur 12","Note pondérée sur 12","Note finale sur 20"];
+  const rows = PRESENTERS.map(p => {
+    const r = computePresenter(p);
+    const f = v => (v === null ? "" : v.toFixed(2));
+    return [
+      p, r.studentCount, r.profCount,
+      f(r.classTotal12), f(r.profTotal12), f(r.weightedTotal12),
+      r.finalOutOf20 === null ? "" : r.finalOutOf20.toFixed(2)
+    ].map(csvCell).join(",");
+  });
+  const csv = header.map(csvCell).join(",") + "\n" + rows.join("\n");
+  downloadFile("resultats_symposium.csv", csv, "text/csv");
+  showMsg(tmsg, "✓ CSV des résultats exporté.", "ok");
+});
+
+// Export JSON
+document.getElementById("expJson").addEventListener("click", () => {
+  const tmsg = document.getElementById("toolMsg");
+  const json = JSON.stringify(evaluations, null, 2);
+  downloadFile("sauvegarde_symposium.json", json, "application/json");
+  showMsg(tmsg, "✓ Sauvegarde JSON exportée (" + evaluations.length + " évaluation(s)).", "ok");
+});
+
+// Import JSON
+document.getElementById("impJson").addEventListener("change", (event) => {
+  const tmsg = document.getElementById("toolMsg");
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const data = JSON.parse(e.target.result);
+      // Validation : doit être un tableau d'objets d'évaluation
+      if(!Array.isArray(data)){
+        throw new Error("Le fichier ne contient pas un tableau.");
+      }
+      const valid = data.every(o =>
+        o && typeof o === "object" &&
+        typeof o.presenter === "string" &&
+        typeof o.evaluator === "string" &&
+        o.scores && typeof o.scores === "object" &&
+        ["thesis","appearances","history","argument"].every(k => typeof o.scores[k] === "number")
+      );
+      if(!valid){
+        throw new Error("Structure d'évaluation invalide.");
+      }
+      evaluations = data;
+      saveData(evaluations);
+      refreshAll();
+      showMsg(tmsg, "✓ Importation réussie : " + data.length + " évaluation(s) chargée(s).", "ok");
+    }catch(err){
+      showMsg(tmsg, "Échec de l'importation : " + err.message, "warn");
+    }
+    event.target.value = ""; // réinitialiser l'input
+  };
+  reader.readAsText(file, "UTF-8");
+});
+
+// Effacer toutes les données
+document.getElementById("clearBtn").addEventListener("click", () => {
+  const tmsg = document.getElementById("toolMsg");
+  if(evaluations.length === 0){
+    showMsg(tmsg, "Aucune donnée à effacer.", "info");
+    return;
+  }
+  const ok = confirm("Êtes-vous certain de vouloir effacer TOUTES les évaluations ? Cette action est irréversible.");
+  if(!ok) return;
+  evaluations = [];
+  saveData(evaluations);
+  refreshAll();
+  showMsg(tmsg, "Toutes les données ont été effacées.", "info");
+});
+
+/* =========================================================
+   DÉMARRAGE
+   ========================================================= */
+refreshAll();
+</script>
+</body>
+</html>
