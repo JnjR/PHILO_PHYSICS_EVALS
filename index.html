@@ -89,6 +89,29 @@
     font-weight: 600;
   }
 
+  .conn-banner{
+    margin-top: 20px;
+    border-radius: 14px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .conn-banner::before{
+    content: "";
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    margin-right: 9px;
+    vertical-align: middle;
+  }
+  .conn-live{ background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+  .conn-live::before{ background:#16a34a; }
+  .conn-local{ background:var(--blue); color:#1e3a5f; border:1px solid var(--blue-strong); }
+  .conn-local::before{ background:#2563eb; }
+  .conn-error{ background:var(--red); color:#7f1d1d; border:1px solid var(--red-strong); }
+  .conn-error::before{ background:#dc2626; }
+
   /* ===== Sections / cartes ===== */
   .card{
     background: var(--card);
@@ -312,6 +335,82 @@
     .card{ padding: 24px 20px; }
   }
 </style>
+<!-- ============================================================
+     FIREBASE (base de données temps réel partagée)
+     ------------------------------------------------------------
+     Pour activer la synchronisation en temps réel entre tous les
+     appareils, collez ci-dessous la configuration de VOTRE projet
+     Firebase (voir les instructions fournies).
+
+     Tant que FIREBASE_CONFIG n'est pas rempli, l'application
+     fonctionne quand même, mais en mode LOCAL uniquement
+     (chaque appareil garde ses propres données).
+     ============================================================ -->
+<script type="module">
+  // === COLLEZ VOTRE CONFIGURATION FIREBASE ICI ===
+  // Remplacez les valeurs "VOTRE_..." par celles de votre console Firebase.
+  // Laissez tel quel pour rester en mode local.
+  const FIREBASE_CONFIG = {
+    apiKey:       "VOTRE_API_KEY",
+    authDomain:   "VOTRE_PROJET.firebaseapp.com",
+    databaseURL:  "https://VOTRE_PROJET-default-rtdb.firebaseio.com",
+    projectId:    "VOTRE_PROJET",
+    appId:        "VOTRE_APP_ID"
+  };
+  // === FIN DE LA CONFIGURATION ===
+
+  // Détecte si la configuration a réellement été remplie
+  const isConfigured = !Object.values(FIREBASE_CONFIG).some(v =>
+    typeof v === "string" && v.startsWith("VOTRE_") || String(v).includes("VOTRE_PROJET")
+  );
+
+  // On expose un petit pont global que le reste du script utilisera.
+  // window.SymposiumDB fournit : .enabled, .onData(cb), .add(rec), .clearAll()
+  window.SymposiumDB = { enabled: false };
+
+  if(isConfigured){
+    try{
+      // Import des modules Firebase depuis le CDN officiel (pas de npm requis)
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+      const { getDatabase, ref, push, set, remove, onValue } =
+        await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+
+      const app = initializeApp(FIREBASE_CONFIG);
+      const db  = getDatabase(app);
+      const evalsRef = ref(db, "evaluations");
+
+      window.SymposiumDB = {
+        enabled: true,
+        // Abonnement temps réel : appelé à chaque changement de la base
+        onData(cb){
+          onValue(evalsRef, (snap) => {
+            const val = snap.val() || {};
+            // La base stocke un objet { pushId: record }. On le convertit en tableau.
+            const arr = Object.keys(val).map(k => Object.assign({ _key: k }, val[k]));
+            cb(arr);
+          });
+        },
+        // Ajout d'une évaluation
+        async add(record){
+          const newRef = push(evalsRef);
+          await set(newRef, record);
+        },
+        // Effacement total
+        async clearAll(){
+          await remove(evalsRef);
+        }
+      };
+      window.dispatchEvent(new Event("symposiumdb-ready"));
+    }catch(err){
+      console.error("Échec de l'initialisation de Firebase :", err);
+      window.SymposiumDB = { enabled: false, error: String(err) };
+      window.dispatchEvent(new Event("symposiumdb-ready"));
+    }
+  }else{
+    // Non configuré : on signale que le pont est prêt mais désactivé
+    window.dispatchEvent(new Event("symposiumdb-ready"));
+  }
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -328,6 +427,7 @@
       <span class="pill">Calcul automatique</span>
       <span class="pill">Export CSV / JSON</span>
     </div>
+    <div id="connBanner" class="conn-banner conn-local">Mode local — connexion à la base partagée…</div>
   </header>
 
   <!-- ===== MÉTRIQUES ===== -->
@@ -465,7 +565,7 @@
   <!-- ===== EXPORT / IMPORT ===== -->
   <section class="card">
     <h2>Export / Import</h2>
-    <p class="lede">Sauvegarder, restaurer ou réinitialiser les données. Les données sont conservées localement dans le navigateur.</p>
+    <p class="lede">Sauvegarder, restaurer ou réinitialiser les données. Les données sont conservées localement dans le navigateur. L'importation JSON <strong>fusionne</strong> les fichiers (idéale pour rassembler les fichiers des étudiants) : les doublons présentateur/évaluateur sont ignorés automatiquement.</p>
     <div class="tool-row">
       <button class="btn btn-secondary" id="expRaw">Exporter CSV (évaluations)</button>
       <button class="btn btn-secondary" id="expSummary">Exporter CSV (résultats)</button>
@@ -553,6 +653,64 @@ function saveData(arr){
 }
 
 let evaluations = loadData();
+
+/* =========================================================
+   PONT TEMPS RÉEL (Firebase) — optionnel
+   ---------------------------------------------------------
+   Si une base partagée est configurée, elle devient la source
+   de vérité : le formulaire écrit dans la base, et un abonnement
+   temps réel met à jour `evaluations` + l'affichage sur TOUS les
+   appareils. Sinon, l'app reste en mode local (localStorage).
+   ========================================================= */
+
+// Vrai une fois que window.SymposiumDB est prêt ET activé
+let DB_LIVE = false;
+
+function updateConnBanner(state, detail){
+  const el = document.getElementById("connBanner");
+  if(!el) return;
+  if(state === "live"){
+    el.className = "conn-banner conn-live";
+    el.textContent = "Base partagée connectée — synchronisation en temps réel active.";
+  }else if(state === "error"){
+    el.className = "conn-banner conn-error";
+    el.textContent = "Base partagée indisponible — mode local de secours. " + (detail || "");
+  }else{
+    el.className = "conn-banner conn-local";
+    el.textContent = "Mode local — chaque appareil garde ses propres données (aucune base partagée configurée).";
+  }
+}
+
+function initRealtimeBridge(){
+  const bridge = window.SymposiumDB || { enabled: false };
+
+  if(bridge.error){
+    updateConnBanner("error", "Vérifiez la configuration.");
+    return; // on reste en local
+  }
+  if(!bridge.enabled){
+    updateConnBanner("local");
+    return; // mode local pur (comportement d'origine)
+  }
+
+  // Base partagée active : on s'abonne aux données temps réel.
+  DB_LIVE = true;
+  updateConnBanner("live");
+
+  bridge.onData((arr) => {
+    // La base est la source de vérité : on remplace l'état local.
+    evaluations = arr;
+    saveData(evaluations);   // copie de secours locale
+    refreshAll();
+  });
+}
+
+// Le pont peut être prêt avant ou après ce script : on gère les deux cas.
+if(window.SymposiumDB){
+  initRealtimeBridge();
+}else{
+  window.addEventListener("symposiumdb-ready", initRealtimeBridge, { once: true });
+}
 
 /* =========================================================
    INITIALISATION DU FORMULAIRE
@@ -663,12 +821,23 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     suggestion: suggestion
   };
 
-  evaluations.push(record);
-  saveData(evaluations);
-
-  showMsg(msg, "✓ Évaluation enregistrée : « " + evaluator + " » → « " + presenter + " ».", "ok");
-  resetForm(false);
-  refreshAll();
+  if(DB_LIVE && window.SymposiumDB && window.SymposiumDB.enabled){
+    // Mode partagé : on écrit dans la base. L'abonnement temps réel
+    // mettra à jour les tableaux automatiquement (sur tous les appareils).
+    window.SymposiumDB.add(record).then(() => {
+      showMsg(msg, "✓ Évaluation enregistrée et partagée : « " + evaluator + " » → « " + presenter + " ».", "ok");
+      resetForm(false);
+    }).catch((err) => {
+      showMsg(msg, "Échec de l'envoi vers la base partagée : " + err.message + " — réessayez.", "warn");
+    });
+  }else{
+    // Mode local : comportement d'origine.
+    evaluations.push(record);
+    saveData(evaluations);
+    showMsg(msg, "✓ Évaluation enregistrée : « " + evaluator + " » → « " + presenter + " ».", "ok");
+    resetForm(false);
+    refreshAll();
+  }
 });
 
 function resetForm(clearSelectors){
@@ -954,10 +1123,48 @@ document.getElementById("impJson").addEventListener("change", (event) => {
       if(!valid){
         throw new Error("Structure d'évaluation invalide.");
       }
-      evaluations = data;
-      saveData(evaluations);
-      refreshAll();
-      showMsg(tmsg, "✓ Importation réussie : " + data.length + " évaluation(s) chargée(s).", "ok");
+
+      // FUSION : on ajoute les nouvelles évaluations aux données existantes
+      // plutôt que de les remplacer. Un doublon (même présentateur + même
+      // évaluateur) est ignoré, ce qui permet d'importer plusieurs fichiers
+      // d'étudiants — et de réimporter le même fichier sans double comptage.
+      const existingPairs = new Set(
+        evaluations.map(e => e.presenter + "||" + e.evaluator)
+      );
+      const toAdd = [];
+      let skipped = 0;
+      data.forEach(o => {
+        const pair = o.presenter + "||" + o.evaluator;
+        if(existingPairs.has(pair)){
+          skipped++;
+        }else{
+          existingPairs.add(pair);
+          if(!o.id) o.id = "ev_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
+          toAdd.push(o);
+        }
+      });
+
+      if(DB_LIVE && window.SymposiumDB && window.SymposiumDB.enabled){
+        // Mode partagé : on envoie chaque nouvelle évaluation vers la base.
+        // L'abonnement temps réel rafraîchira les tableaux automatiquement.
+        Promise.all(toAdd.map(r => window.SymposiumDB.add(r)))
+          .then(() => {
+            showMsg(tmsg,
+              "✓ Importation partagée : " + toAdd.length + " évaluation(s) ajoutée(s)" +
+              (skipped > 0 ? ", " + skipped + " doublon(s) ignoré(s)." : "."),
+              "ok");
+          })
+          .catch(err => showMsg(tmsg, "Échec de l'envoi vers la base partagée : " + err.message, "warn"));
+      }else{
+        // Mode local
+        toAdd.forEach(r => evaluations.push(r));
+        saveData(evaluations);
+        refreshAll();
+        showMsg(tmsg,
+          "✓ Importation réussie : " + toAdd.length + " évaluation(s) ajoutée(s)" +
+          (skipped > 0 ? ", " + skipped + " doublon(s) ignoré(s)." : "."),
+          "ok");
+      }
     }catch(err){
       showMsg(tmsg, "Échec de l'importation : " + err.message, "warn");
     }
@@ -975,10 +1182,18 @@ document.getElementById("clearBtn").addEventListener("click", () => {
   }
   const ok = confirm("Êtes-vous certain de vouloir effacer TOUTES les évaluations ? Cette action est irréversible.");
   if(!ok) return;
-  evaluations = [];
-  saveData(evaluations);
-  refreshAll();
-  showMsg(tmsg, "Toutes les données ont été effacées.", "info");
+
+  if(DB_LIVE && window.SymposiumDB && window.SymposiumDB.enabled){
+    // Mode partagé : efface la base pour TOUS les appareils.
+    window.SymposiumDB.clearAll().then(() => {
+      showMsg(tmsg, "Toutes les données partagées ont été effacées.", "info");
+    }).catch(err => showMsg(tmsg, "Échec de l'effacement : " + err.message, "warn"));
+  }else{
+    evaluations = [];
+    saveData(evaluations);
+    refreshAll();
+    showMsg(tmsg, "Toutes les données ont été effacées.", "info");
+  }
 });
 
 /* =========================================================
