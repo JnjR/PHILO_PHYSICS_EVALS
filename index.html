@@ -1174,13 +1174,35 @@ document.getElementById("impJson").addEventListener("change", (event) => {
 });
 
 // Effacer toutes les données
+// ============================================================
+// CODE D'EFFACEMENT (réservé au professeur)
+// ------------------------------------------------------------
+// Seule une personne connaissant ce code peut effacer toutes les
+// données. REMPLACEZ "CHANGEME-2026" par votre propre code avant
+// de déployer. Note : ce code est présent dans le fichier de la
+// page ; il empêche les effacements accidentels et occasionnels,
+// mais n'est pas une protection absolue contre quelqu'un qui
+// inspecterait le code source.
+// ============================================================
+const CLEAR_PASSCODE = "CHANGEME-2026";
+
 document.getElementById("clearBtn").addEventListener("click", () => {
   const tmsg = document.getElementById("toolMsg");
   if(evaluations.length === 0){
     showMsg(tmsg, "Aucune donnée à effacer.", "info");
     return;
   }
-  const ok = confirm("Êtes-vous certain de vouloir effacer TOUTES les évaluations ? Cette action est irréversible.");
+
+  // 1) Demande le code professeur
+  const entered = prompt("Effacement réservé au professeur.\nEntrez le code pour continuer :");
+  if(entered === null) return;                 // annulé
+  if(entered !== CLEAR_PASSCODE){
+    showMsg(tmsg, "Code incorrect — aucune donnée n'a été effacée.", "warn");
+    return;
+  }
+
+  // 2) Confirmation finale
+  const ok = confirm("Code accepté. Êtes-vous certain de vouloir effacer TOUTES les évaluations ? Cette action est irréversible.");
   if(!ok) return;
 
   if(DB_LIVE && window.SymposiumDB && window.SymposiumDB.enabled){
